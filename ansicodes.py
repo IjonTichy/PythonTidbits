@@ -91,7 +91,7 @@ ValueError: 'bacon' is not an ANSI code"""
     return ret.format(retStr)
 
 
-def mapColors(strn, fgMap, bgMap=None, *, fCols=fgColors, bCols=bgColors):
+def mapColors(strn, fgMap, bgMap=None, *, fCols=None, bCols=None):
     """Maps ANSI color codes to a string or list of strings
 
 >>> mapColors("Potato", "AA11AA", "------")
@@ -128,6 +128,12 @@ e - Dim blue foreground
 f - Dim magenta foreground
 g - Dim cyan foreground
 h - Dim white foreground"""
+
+    if fCols is None:
+        fCols = fgColors
+
+    if bCols is None:
+        bCols = bgColors
 
     currentColorF = ""
     currentColorB = ""
