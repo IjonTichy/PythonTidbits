@@ -1,61 +1,144 @@
 #!/usr/bin/env python3
 
-RESET               = "\033[0m"
+ANSISTART = "\033["
+ANSIEND   = "m"
 
-BOLDON              = "\033[1m"
-BOLDOFF             = "\033[22m"
+RESET               = ANSISTART + "0"  + ANSIEND
 
-DIMON               = "\033[2m"
-DIMOFF              = "\033[21m"
+BOLDON              = ANSISTART + "1"  + ANSIEND
+BOLDOFF             = ANSISTART + "22" + ANSIEND
 
-ITALICSON           = "\033[3m"
-ITALICSOFF          = "\033[23m"
+DIMON               = ANSISTART + "2"  + ANSIEND
+DIMOFF              = ANSISTART + "21" + ANSIEND
 
-UNDERLINEON         = "\033[4m"
-UNDERLINEOFF        = "\033[24m"
+ITALICSON           = ANSISTART + "3"  + ANSIEND
+ITALICSOFF          = ANSISTART + "23" + ANSIEND
 
-INVERSEON           = "\033[7m"
-INVERSEOFF          = "\033[27m"
+UNDERLINEON         = ANSISTART + "4"  + ANSIEND
+UNDERLINEOFF        = ANSISTART + "24" + ANSIEND
 
-STRIKETHROUGHON     = "\033[7m"
-STRIKETHROUGHOFF    = "\033[27m"
+BLINKON             = ANSISTART + "5"  + ANSIEND
+BLINKONFAST         = ANSISTART + "6"  + ANSIEND   # not widely supported
+BLINKOFF            = ANSISTART + "25" + ANSIEND
 
-BLACKF              = "\033[30m"
-REDF                = "\033[31m"
-GREENF              = "\033[32m"
-YELLOWF             = "\033[33m"
-BLUEF               = "\033[34m"
-MAGENTAF            = "\033[35m"
-CYANF               = "\033[36m"
-WHITEF              = "\033[37m"
-DEFAULTF            = "\033[39m"
+INVERSEON           = ANSISTART + "7"  + ANSIEND
+INVERSEOFF          = ANSISTART + "27" + ANSIEND
 
-BLACKB              = "\033[40m"
-REDB                = "\033[41m"
-GREENB              = "\033[42m"
-YELLOWB             = "\033[43m"
-BLUEB               = "\033[44m"
-MAGENTAB            = "\033[45m"
-CYANB               = "\033[46m"
-WHITEB              = "\033[47m"
-DEFAULTB            = "\033[49m"
+STRIKETHROUGHON     = ANSISTART + "7"  + ANSIEND
+STRIKETHROUGHOFF    = ANSISTART + "27" + ANSIEND
 
-fgColors = {"0": BOLDOFF + BLACKF, "1": BOLDOFF + REDF, "2": BOLDOFF + GREENF, "3": BOLDOFF + YELLOWF,
-            "4": BOLDOFF + BLUEF, "5": BOLDOFF + MAGENTAF, "6": BOLDOFF + CYANF, "7": BOLDOFF + WHITEF,
+BLACKF              = ANSISTART + "30" + ANSIEND
+REDF                = ANSISTART + "31" + ANSIEND
+GREENF              = ANSISTART + "32" + ANSIEND
+YELLOWF             = ANSISTART + "33" + ANSIEND
+BLUEF               = ANSISTART + "34" + ANSIEND
+MAGENTAF            = ANSISTART + "35" + ANSIEND
+CYANF               = ANSISTART + "36" + ANSIEND
+WHITEF              = ANSISTART + "37" + ANSIEND
+DEFAULTF            = ANSISTART + "39" + ANSIEND
 
-            "A": BOLDON + BLACKF, "B": BOLDON + REDF, "C": BOLDON + GREENF, "D": BOLDON + YELLOWF,
-            "E": BOLDON + BLUEF, "F": BOLDON + MAGENTAF, "G": BOLDON + CYANF, "H": BOLDON + WHITEF}
+BLACKB              = ANSISTART + "40" + ANSIEND
+REDB                = ANSISTART + "41" + ANSIEND
+GREENB              = ANSISTART + "42" + ANSIEND
+YELLOWB             = ANSISTART + "43" + ANSIEND
+BLUEB               = ANSISTART + "44" + ANSIEND
+MAGENTAB            = ANSISTART + "45" + ANSIEND
+CYANB               = ANSISTART + "46" + ANSIEND
+WHITEB              = ANSISTART + "47" + ANSIEND
+DEFAULTB            = ANSISTART + "49" + ANSIEND
+
+fgColors = {"0": BOLDOFF + DIMOFF + BLACKF, "1": BOLDOFF + DIMOFF + REDF, "2": BOLDOFF + DIMOFF + GREENF, "3": BOLDOFF + DIMOFF + YELLOWF,
+            "4": BOLDOFF + DIMOFF + BLUEF, "5": BOLDOFF + DIMOFF + MAGENTAF, "6": BOLDOFF + DIMOFF + CYANF, "7": BOLDOFF + DIMOFF + WHITEF,
+
+            "A": DIMOFF + BOLDON + BLACKF, "B": DIMOFF + BOLDON + REDF, "C": DIMOFF + BOLDON + GREENF, "D": DIMOFF + BOLDON + YELLOWF,
+            "E": DIMOFF + BOLDON + BLUEF, "F": DIMOFF + BOLDON + MAGENTAF, "G": DIMOFF + BOLDON + CYANF, "H": DIMOFF + BOLDON + WHITEF,
+
+            "a": BOLDOFF + DIMON + BLACKF, "b": BOLDOFF + DIMON + REDF, "c": BOLDOFF + DIMON + GREENF, "d": BOLDOFF + DIMON + YELLOWF,
+            "e": BOLDOFF + DIMON + BLUEF, "f": BOLDOFF + DIMON + MAGENTAF, "g": BOLDOFF + DIMON + CYANF, "h": BOLDOFF + DIMON + WHITEF}
 
 
 bgColors = {"0": BLACKB, "1": REDB, "2": GREENB, "3": YELLOWB,
             "4": BLUEB, "5": MAGENTAB, "6": CYANB, "7": WHITEB}
 
-def mapColors(strn, fgMap, bgMap, *, fCols=fgColors, bCols=bgColors):
+def combineCodes(*ansiCodes):
+    """Combines multiple ANSI excape codes
+
+>>> combineCodes(BOLDON, REDF)
+'\x1b[1;31m'
+>>> combineCodes(BOLDON, REDF, BLUEB)
+'\x1b[1;31;44m'
+>>> combineCodes(BOLDON, REDF, BLUEB, "bacon")
+Traceback (most recent call last):
+  ...
+ValueError: 'bacon' is not an ANSI code"""
+
+    ret = ANSISTART + "{}" + ANSIEND
+
+    retCodes = []
+
+    for i in ansiCodes:
+
+        if not (i.startswith(ANSISTART) and i.endswith(ANSIEND) ):
+            raise ValueError("{!r} is not an ANSI code".format(i) )
+
+        j = i.lstrip(ANSISTART)
+        j = j.rstrip(ANSIEND)
+
+        retCodes.append(j)
+
+    retStr = ";".join(retCodes)
+
+    return ret.format(retStr)
+
+
+def mapColors(strn, fgMap, bgMap=None, *, fCols=fgColors, bCols=bgColors):
+    """Maps ANSI color codes to a string or list of strings
+
+>>> mapColors("Potato", "AA11AA", "------")
+'\\x1b[1m\\x1b[30mPo\\x1b[22m\\x1b[31mta\\x1b[1m\\x1b[30mto\\x1b[0m'
+>>> print(_)
+Potato
+
+
+By default, the colors are:
+
+0 - Black   fore/background
+1 - Red     fore/background
+2 - Green   fore/background
+3 - Yellow  fore/background
+4 - Blue    fore/background
+5 - Magenta fore/background
+6 - Cyan    fore/background
+7 - White   fore/background
+
+A - Bold black foreground
+B - Bold red foreground
+C - Bold green foreground
+D - Bold yellow foreground
+E - Bold blue foreground
+F - Bold magenta foreground
+G - Bold cyan foreground
+H - Bold white foreground
+
+a - Dim black foreground
+b - Dim red foreground
+c - Dim green foreground
+d - Dim yellow foreground
+e - Dim blue foreground
+f - Dim magenta foreground
+g - Dim cyan foreground
+h - Dim white foreground"""
 
     currentColorF = ""
     currentColorB = ""
 
+    resetF = combineCodes(DEFAULTF, BOLDOFF, DIMOFF)
+    resetB = DEFAULTB
+
     ret = []
+
+    if bgMap is None:
+        bgMap = "-" * len(fgMap)
 
     if not (len(strn) == len(fgMap) == len(bgMap) ):
         raise AssertionError("string and maps not equal lengths")
@@ -65,24 +148,24 @@ def mapColors(strn, fgMap, bgMap, *, fCols=fgColors, bCols=bgColors):
         fChar = fgMap[pos]
         bChar = bgMap[pos]
 
-        if fChar in fCols:
+        if fChar in fCols and fChar != "-":
             if currentColorF != fChar:
                 ret.append(fCols[fChar] )
                 currentColorF = fChar
 
         else:
             if currentColorF != "":
-                ret.append(DEFAULTF + BOLDOFF)
+                ret.append(resetF)
             currentColorF = ""
 
-        if bChar in bCols:
+        if bChar in bCols and bChar != "-":
             if currentColorB != bChar:
                 ret.append(bCols[bChar] )
                 currentColorB = bChar
 
         else:
             if currentColorB != "":
-                ret.append(DEFAULTB)
+                ret.append(resetB)
             currentColorB = ""
 
 
@@ -91,4 +174,3 @@ def mapColors(strn, fgMap, bgMap, *, fCols=fgColors, bCols=bgColors):
     ret.append(RESET)
 
     return "".join(ret)
-
