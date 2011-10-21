@@ -64,9 +64,9 @@ def combineCodes(*ansiCodes):
     """Combines multiple ANSI excape codes
 
 >>> combineCodes(BOLDON, REDF)
-'\x1b[1;31m'
+'\\x1b[1;31m'
 >>> combineCodes(BOLDON, REDF, BLUEB)
-'\x1b[1;31;44m'
+'\\x1b[1;31;44m'
 >>> combineCodes(BOLDON, REDF, BLUEB, "bacon")
 Traceback (most recent call last):
   ...
