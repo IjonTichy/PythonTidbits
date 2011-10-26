@@ -90,6 +90,40 @@ ValueError: 'bacon' is not an ANSI code"""
 
     return ret.format(retStr)
 
+def stripCodes(message):
+
+    ret = []
+    removing = False
+
+    for n, c in enumerate(message):
+
+        if not removing:
+            for n2, c2 in enumerate(ANSISTART):
+                cut = n + n2
+
+                if message[cut:cut+1] != c2:
+                    break
+
+            else:
+                removing = True
+
+            if not removing:
+                ret.append(c)
+
+        else:
+
+            for n2, c2 in enumerate(ANSIEND):
+                cut = n - n2
+
+                if cut < 0:
+                    break
+
+                if message[cut:cut+1] != ANSIEND[-n2 - 1]:
+                    break
+
+                removing = False
+
+    return "".join(ret)
 
 def mapColors(strn, fgMap, bgMap=None, *, fCols=None, bCols=None):
     """Maps ANSI color codes to a string or list of strings
