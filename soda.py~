@@ -1,0 +1,14 @@
+#!/usr/bin/python
+def snowball():
+	numS = None
+	while not numS:
+		try: numS = int(raw_input("Amount of students attending: "))
+		except AttributeError: print "NaN"
+	soda24packs	= numS/24
+	soda6packs	= (numS - (soda24packs * 24)) / 6
+	singleSodas	= numS - (soda24packs * 24) - (soda6packs * 6)
+	print "You'll need:\n%s 24-pack%s of soda\n%s 6-pack%s of soda\n%s single soda%s" % \
+	(soda24packs, "" if soda24packs == 1 else "s", soda6packs, "" if soda6packs == 1 else "s", singleSodas, "" if singleSodas == 1 else "s")
+
+if __name__ == "__main__": snowball()
+	
